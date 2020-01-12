@@ -5,7 +5,7 @@ from flask_login import UserMixin, current_user
 from . import db
 
 
-def login_required(role="ANY"):
+def login_required(role="ANY"): # role based authenticaton
     def wrapper(fn):
         @wraps(fn)
         def decorated_view(*args, **kwargs):
@@ -55,5 +55,4 @@ class File(db.Model):
     # max possible mime length according to rfc
     file_mime = db.Column(db.String(255))
     file_hash = db.Column(db.String(40), unique=True)  # sha1 hash length
-    text = db.Column(db.Text) # document text
     submitter = db.Column(db.Integer)  # submitter user id

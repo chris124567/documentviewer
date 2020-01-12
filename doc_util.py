@@ -6,15 +6,15 @@ from .models import File
 
 
 def search_documents(search, n):
-    if (search == "" or search == None):
-        results = File.query.order_by(desc(File.id)).limit(n).all()
-    else:
+    if (search == "" or search == None): # if query is empty
+        results = File.query.order_by(desc(File.id)).limit(n).all() # return first n results
+    else: # search for query and return first n results
         results = File.query.filter(File.title.contains(search)).order_by(
             desc(File.id)).limit(n).all()
     return display_file_results(results)
 
 
-def display_file_results(results):
+def display_file_results(results): # generate html to be displayed on home and search pages: displays file name and title
     html = ""
     i = 1
     for file in results:

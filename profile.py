@@ -9,7 +9,7 @@ profile = Blueprint('profile', __name__)
 @login_required()
 def user_profile(userid):
     user = User.query.get(userid)
-    selected_file = File.query.filter_by(submitter=userid).all()
+    selected_file = File.query.filter_by(submitter=userid).all() # get all files uploaded by submitter with user id userid
     return render_template(
         "profile.html",
         name=user.name,

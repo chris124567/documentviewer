@@ -26,10 +26,6 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # wasteful feature
 
     app.config['UPLOAD_FOLDER'] = "data"
-    # recaptcha
-    app.config['RECAPTCHA_PUBLIC_KEY']='6LdkVM0UAAAAACe6om1_ZWREw-JQ-u7PrZZQOu4V'
-    app.config['RECAPTCHA_PRIVATE_KEY']='6LdkVM0UAAAAAH7gknHsRXMdZi4pZP8bpO7X7uDZ'
-    app.config['RECAPTCHA_OPTIONS'] = {'theme':'white'}
 
     admin = Admin(
         app,
@@ -42,6 +38,7 @@ def create_app():
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'  # login page
     # login_manager.session_protection = 'strong'
+    # ^ prevents "remember me" button from working so is disabled
 
     login_manager.init_app(app)
 
