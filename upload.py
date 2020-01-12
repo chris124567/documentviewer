@@ -11,8 +11,8 @@ from .models import login_required, File
 
 upload = Blueprint('upload', __name__)
 
-mime = magic.Magic(mime=True)  # dont reinitiate library if we don't have to
-APPROVED_FILETYPES = {
+mime = magic.Magic(mime=True)  # prevents us from having to reinitiate library every time we call the upload function
+APPROVED_FILETYPES = { # pdf, doc, docx, odt, rtf, and all variants with macros
     "application/msword",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "application/vnd.oasis.opendocument.text", "application/pdf",

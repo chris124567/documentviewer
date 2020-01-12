@@ -10,4 +10,4 @@ main = Blueprint('main', __name__)
 @main.route('/')
 def index():
     return render_template(
-        'index.html', new_documents=search_documents("", 10))
+        'index.html', new_documents=search_documents("", 10)) # return newest 10 documents on home page
