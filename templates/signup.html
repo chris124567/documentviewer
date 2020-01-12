@@ -1,0 +1,40 @@
+<!-- templates/signup.html -->
+
+{% extends "base.html" %}
+{% set active_page = "Signup" %}
+
+{% block headexpand %}
+<style>
+.half-width-form-control {
+           display: inline-block;
+           width: calc(50%);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <h3>Sign Up</h3>
+    <div>
+        <form method="POST" action="{{url_for('auth.signup')}}">
+            <div>
+                <div>
+                    <input class="form-control half-width-form-control" type="text" name="username" placeholder="Username" autofocus="">
+                </div>
+            </div>
+            <div>
+                <div>
+                    <input class="form-control half-width-form-control" type="text" name="name" placeholder="Name">
+                </div>
+            </div>
+            <div>
+                <div>
+                    <input class="form-control half-width-form-control" type="password" name="password" placeholder="Password">
+                </div>
+            </div>
+            <br>
+            <button class="btn btn-primary">Sign Up</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

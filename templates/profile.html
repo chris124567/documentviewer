@@ -1,0 +1,10 @@
+<!-- templates/profile.html -->
+{% extends "base.html" %}
+{% set active_page = name %}
+
+{% block content %}
+<h1>
+  {{ name }}'s Uploaded Documents
+</h1>
+{{ results }}
+{% endblock %}

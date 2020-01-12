@@ -1,0 +1,22 @@
+<!-- templates/login.html -->
+
+{% extends "base.html" %}
+{% set active_page = "Search" %}
+
+{% block content %}
+
+<div>
+    <h1>Search Documents</h1>
+    We search document titles and return the first 25 results of your query.
+    <div>
+        <form method="get" action="{{url_for('search.search_page')}}">
+            <input type="text" name="q" placeholder="Search Query" autofocus="">
+            <button class="btn btn-default" type="submit">Search</button>
+        </form>
+    </div>
+    <div>
+        <br>
+        {{query_results}}
+    </div>
+</div>
+{% endblock %}

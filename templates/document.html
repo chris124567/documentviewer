@@ -1,0 +1,14 @@
+<!-- templates/profile.html -->
+{% set active_page = doc_name %}
+
+{% extends "base.html" %}
+
+{% block content %}
+<div style="text-align:center;">
+	<iframe src="/static/ViewerJS/index.html#../../download/{{ token }}" style="min-height:75vh;width:75%" allowfullscreen></iframe>
+	<form action="/download/{{ token }}">
+		<button class="btn btn-primary btn-lg" type="submit">Download</button>
+	</form>
+</div>
+<!-- <iframe src="https://docs.google.com/gview?url={{config.WEBSITE_HOST}}/download/{{ token }}&embedded=true"></iframe> -->
+{% endblock %}

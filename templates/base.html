@@ -1,0 +1,61 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+{% set active_page = active_page|default('Home') -%}
+
+<head>
+    <meta charset="utf-8">
+    <meta name="robots" content="index, follow, noarchive">
+    <meta name="referrer" content="no-referrer">
+    <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style_theme.css') }}" rel="stylesheet">
+    <title>{{active_page}} - {{config.WEBSITE_NAME}}</title>
+    {% block headexpand %}
+    {% endblock %}
+
+</head>
+
+<body>
+        <div>
+            <nav class="navbar navbar-default">
+                <ul class="nav navbar-nav">
+{% if not current_user.is_authenticated %}
+{% set navigation_bar = [
+('/', 'Home', 'Home'),
+('/search', 'Search', 'Search'),
+('/login', 'Login', 'Login'),
+('/signup', 'Signup', 'Signup'),
+] -%}
+{% else %}
+{% set navigation_bar = [
+('/', 'Home', 'Home'),
+('/search', 'Search', 'Search'),
+('/upload', 'Upload', 'Upload Documents'),
+('/user/' ~ current_user.id, current_user.name, current_user.name + ' (' + current_user.username + ')'),
+('/logout', 'Logout', 'Logout')
+] -%}
+{% endif %}
+
+                    {% for href, id, caption in navigation_bar %}
+                    <li{% if id == active_page %} class="active"{% endif %}>
+                    <a href="{{ href|e }}">{{ caption|e }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="alert alert-warning" role="alert">
+    Alert: {{ messages[0] }}
+    </div>
+    {% endif %}
+    {% endwith %}
+<div>
+       {% block content %}
+       {% endblock %}
+</div>
+</body>
+</html>

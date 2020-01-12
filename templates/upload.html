@@ -1,0 +1,39 @@
+<!-- templates/login.html -->
+
+{% extends "base.html" %}
+{% set active_page = "Upload" %}
+
+{% block headexpand %}
+<title>Upload Documents - {{ config.WEBSITE_NAME }}</title>
+{% endblock %}
+
+{% block content %}
+
+<div>
+    <h1>Upload Documents</h1>
+    <div>
+        <form method="POST" enctype="multipart/form-data" action="{{url_for('upload.upload_file')}}">
+            <div>
+                <div>
+                    <span>Document Title <i>(optional)</i>:</span>
+                    <input class="form-control" type="text" maxlength="256" name="title" placeholder="Title" autofocus="">
+                    <br>
+                </div>
+                <div>
+                    <span>Document Description <i>(optional)</i>:</span>
+                    <input class="form-control" type="text" maxlength="512" name="description" placeholder="Description">
+                    <br>
+                </div>
+                <div>
+                    <input class="form-control-file" name="file" type="file">
+                    <br>
+                </div>
+                <div>
+                    <input class="btn btn-primary" type="submit" value="Upload File!">
+                </div>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+{% set active_page = "Home" %}
+
+{% block content %}
+<h1>Welcome to {{config.WEBSITE_NAME}}.</h1>
+
+<h4>See our newest documents:</h4>
+{{ new_documents }}
+{% endblock %}
