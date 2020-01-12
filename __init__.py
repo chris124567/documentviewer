@@ -17,7 +17,7 @@ def create_app():
     app.config['WEBSITE_HOST'] = "localhost:5000"
 
     app.config['SECRET_KEY'] = "ktGSOu1QLcc1WBQDxzTK"
-    
+
     # TODO: use actual database backend (postgres, ...)
     # sql
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'

@@ -5,7 +5,7 @@ from flask_login import UserMixin, current_user
 from . import db
 
 
-def login_required(role="ANY"): # role based authenticaton
+def login_required(role="ANY"):  # role based authenticaton
     def wrapper(fn):
         @wraps(fn)
         def decorated_view(*args, **kwargs):

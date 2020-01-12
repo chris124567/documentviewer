@@ -8,4 +8,5 @@ search = Blueprint('search', __name__)
 def search_page():
     query = request.args.get('q')
     return render_template(
-        "search.html", query_results=search_documents(query, 25)) # we return 25 results for every query to prevent database overusage
+        "search.html", query_results=search_documents(query, 25)
+    )  # we return 25 results for every query to prevent database overusage
