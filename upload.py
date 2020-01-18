@@ -11,8 +11,10 @@ from .models import login_required, File
 
 upload = Blueprint('upload', __name__)
 
-mime = magic.Magic(mime=True)  # prevents us from having to reinitiate library every time we call the upload function
-APPROVED_FILETYPES = { # pdf, doc, docx, odt, rtf, and all variants with macros
+mime = magic.Magic(
+    mime=True
+)  # prevents us from having to reinitiate library every time we call the upload function
+APPROVED_FILETYPES = {  # pdf, doc, docx, odt, rtf, and all variants with macros
     "application/msword",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "application/vnd.oasis.opendocument.text", "application/pdf",
@@ -30,22 +32,19 @@ def upload_file():
 @upload.route("/upload", methods=['POST'])
 @login_required()
 def upload_file_post():
-    if (request.files == []):  # if file part of request is empty
-        flash("Please attach a file")
-        return redirect(
-            url_for('upload.upload_file'))  # redirect to upload page
     file_content = request.files['file'].read(
     )  # since request.files returns a file object we have to call read() to get its contents
     file_mime = mime.from_buffer(file_content)  # detect mimetype of file
 
     if file_mime not in APPROVED_FILETYPES:
         flash(
-            "File format forbidden.  Try using one of the following: epub, rtf, pdf, doc, or docx"
+            "File format forbidden.  Try using one of the following: epub, rtf, pdf, odt, doc, or docx"
         )
         return redirect(
             url_for('upload.upload_file')
         )  # redirect back to upload page if filetype is not permitted
 
+    # dont get further information unless filetype is approved: save processor cycles
     title = request.form.get('title')
     description = request.form.get('description')
     file_hash = get_sha1_digest(file_content)

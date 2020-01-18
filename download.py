@@ -20,4 +20,4 @@ def download_doc(token):  #obfuscate download url
     return send_file(
         selected_file.file_path,
         attachment_filename=selected_file.original_name,
-        as_attachment=True)
+        as_attachment=True, mimetype=selected_file.file_mime)

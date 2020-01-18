@@ -6,8 +6,12 @@
 {% block content %}
 
 <div>
-    <h1>Search Documents</h1>
-    We search document titles and return the first 25 results of your query.
+    {% if query %}
+        <h1>Results for "{{ query }}"</h1>
+    {% else %}
+        <h1>Search Documents</h1>
+    {% endif %}
+    We search document titles and return the newest 25 results of your query.
     <div>
         <form method="get" action="{{url_for('search.search_page')}}">
             <input type="text" name="q" placeholder="Search Query" autofocus="">

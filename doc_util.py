@@ -18,11 +18,8 @@ def search_documents(search, n):
 def display_file_results(
         results
 ):  # generate html to be displayed on home and search pages: displays file name and title
-    html = ""
-    i = 1
+    html = "<ol class=\"list-group\">"
     for file in results:
-        html += "%d. <a href=\"http://%s/document/%d\">%s</a>" % (
-            i, current_app.config['WEBSITE_HOST'], file.id, file.title)
-        html += "<br>"
-        i += 1
+        html += "<li class=\"list-group-item\"><a href=\"/document/%d\">%s</a> <small class=\"text-muted\">%s</small></li>" % (file.id, file.title, file.description)
+    html += "</ol>"
     return Markup(html)
