@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, current_app, send_file
-from . import db
-from .models import File, User, login_required
-from .doc_util import display_file_results
+from app import db
+from models import File, User, login_required
+from doc_util import display_file_results
 profile = Blueprint('profile', __name__)
 
 

@@ -2,12 +2,14 @@
 
 import magic
 import textract
+from ast import literal_eval
 
 from flask import Blueprint, flash, current_app, url_for, redirect, render_template, request, Markup
 from flask_login import current_user
-from . import db
-from .util import get_sha1_digest
-from .models import login_required, File
+from mime_map import get_extension_from_mimetype
+from app import db, q, create_app
+from util import get_sha1_digest
+from models import login_required, File
 
 upload = Blueprint('upload', __name__)
 
@@ -18,7 +20,7 @@ APPROVED_FILETYPES = {  # pdf, doc, docx, odt, rtf, and all variants with macros
     "application/msword",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "application/vnd.oasis.opendocument.text", "application/pdf",
-    "application/rtf", "text/rtf",
+    "application/rtf", "text/rtf", "application/epub+zip",
     "application/vnd.ms-word.document.macroEnabled.12"
 }
 
@@ -55,18 +57,29 @@ def upload_file_post():
     if (file):  # if a file of the same hash exists
         flash(
             Markup(
-                "Duplicate file! This file can already be found at the link: <a href=\"http://%s/document/%d\">%s/document/%d</a>"
-                % (current_app.config['WEBSITE_HOST'].lower(), file.id,
-                   current_app.config['WEBSITE_HOST'].lower(), file.id)))
+                "Duplicate file! This file can already be found at the link: <a href=\"/document/%d\">%s/document/%d</a>"
+                % (file.id,
+                   current_app.config['WEBSITE_HOST'], file.id)))
         return redirect(url_for('upload.upload_file'))
     else:
         if (title == ""):
             title = original_name
+
+        job = q.enqueue_call(func=add_file_to_database, args=(submitter, title, original_name, description, file_content, file_mime, file_hash,), result_ttl=-1)
+
+        flash("Success!  We are currently processing your document, it will appear on your profile page shortly.  Want to upload another document?")
+        return redirect(url_for('upload.upload_file'))
+
+def add_file_to_database(submitter, title, original_name, description, file_content, file_mime, file_hash):
+    app = create_app()
+    with app.app_context():
         # save file to UPLOAD_FOLDER/file_hash
         save_location = ''.join(
-            [current_app.config['UPLOAD_FOLDER'], "/", file_hash])
+            [app.config['UPLOAD_FOLDER'], "/", file_hash])
         with open(save_location, "wb+") as storage:
             storage.write(file_content)  #actually write the file
+
+        text = textract.process(save_location, language='eng', extension=get_extension_from_mimetype(file_mime)).decode('utf-8')
 
         new_file = File(
             title=title,
@@ -74,9 +87,10 @@ def upload_file_post():
             description=description,
             file_path=save_location,
             file_mime=file_mime,
+            transcript=text,
             file_hash=file_hash,
             submitter=submitter)
+
         db.session.add(new_file)  #add to database
         db.session.commit()
-        flash("Success!  Want to upload another document?")
-        return redirect(url_for('upload.upload_file'))
+        return new_file.id

@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app, send_file, redirect, url_for
-from . import db
-from .models import File
+from app import db
+from models import File
 from itsdangerous import TimedJSONWebSignatureSerializer
 
 download = Blueprint('download', __name__)

@@ -3,7 +3,7 @@
 from flask import Blueprint, render_template
 from html import unescape
 from flask_login import login_required, current_user
-from .doc_util import search_documents
+from doc_util import search_documents
 main = Blueprint('main', __name__)
 
 

@@ -1,8 +1,8 @@
 # doc_util.py
 from sqlalchemy import desc
 from flask import Markup, current_app
-from . import db
-from .models import File
+from app import db
+from models import File
 
 
 def search_documents(search, n):

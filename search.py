@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request
-from .doc_util import search_documents
+from doc_util import search_documents
 
 search = Blueprint('search', __name__)
 

@@ -2,7 +2,7 @@
 from functools import wraps
 from flask import redirect, url_for, current_app
 from flask_login import UserMixin, current_user
-from . import db
+from app import db
 
 
 def login_required(role="ANY"):  # role based authenticaton
@@ -54,5 +54,6 @@ class File(db.Model):
     file_path = db.Column(db.String(128))  # path to submitted file
     # max possible mime length according to rfc
     file_mime = db.Column(db.String(255))
+    transcript = db.Column(db.Text)
     file_hash = db.Column(db.String(40), unique=True)  # sha1 hash length
     submitter = db.Column(db.Integer)  # submitter user id
