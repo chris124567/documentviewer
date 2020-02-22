@@ -1,21 +1,24 @@
 # upload.py
+"""This file allows us to upload files.
 
+We restrict the upload mimetypes.
+"""
 import magic
 import textract
-from ast import literal_eval
 
 from flask import Blueprint, flash, current_app, url_for, redirect, render_template, request, Markup
 from flask_login import current_user
 from mime_map import get_extension_from_mimetype
-from app import db, q, create_app
+from app import APP_DATABASE
 from util import get_sha1_digest
 from models import login_required, File
 
-upload = Blueprint('upload', __name__)
+UPLOAD_BLUEPRINT = Blueprint('upload', __name__)
 
-mime = magic.Magic(
+MIME = magic.Magic(
     mime=True
 )  # prevents us from having to reinitiate library every time we call the upload function
+
 APPROVED_FILETYPES = {  # pdf, doc, docx, odt, rtf, and all variants with macros
     "application/msword",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -25,22 +28,35 @@ APPROVED_FILETYPES = {  # pdf, doc, docx, odt, rtf, and all variants with macros
 }
 
 
-@upload.route("/upload", methods=['GET'])
+@UPLOAD_BLUEPRINT.route("/upload", methods=['GET'])
 @login_required()
 def upload_file():
+    """This loads the upload page.
+
+    It contains a form for the file itself, a title, and a description.
+    If a title is not supplied, the original file name is used as a
+    title.
+    """
     return render_template("upload.html")
 
 
-@upload.route("/upload", methods=['POST'])
+@UPLOAD_BLUEPRINT.route("/upload", methods=['POST'])
 @login_required()
 def upload_file_post():
+    """This makes sure a file:
+
+    1) has an approved mime-type 2) does not already exist (checks hash)
+    3) has a title (uses original title if one not supplied) And then
+    saves it to the database File column.
+    """
     file_content = request.files['file'].read(
     )  # since request.files returns a file object we have to call read() to get its contents
-    file_mime = mime.from_buffer(file_content)  # detect mimetype of file
+    file_mime = MIME.from_buffer(file_content)  # detect mimetype of file
 
     if file_mime not in APPROVED_FILETYPES:
         flash(
-            "File format forbidden.  Try using one of the following: epub, rtf, pdf, odt, doc, or docx"
+            "File format forbidden.  Try using one of the following: epub, rtf, pdf, odt, doc, or \
+docx"
         )
         return redirect(
             url_for('upload.upload_file')
@@ -54,43 +70,60 @@ def upload_file_post():
     submitter = current_user.id
 
     file = File.query.filter_by(file_hash=file_hash).first()
-    if (file):  # if a file of the same hash exists
+    if file:  # if a file of the same hash exists
         flash(
             Markup(
-                "Duplicate file! This file can already be found at the link: <a href=\"/document/%d\">%s/document/%d</a>"
-                % (file.id,
-                   current_app.config['WEBSITE_HOST'], file.id)))
-        return redirect(url_for('upload.upload_file'))
-    else:
-        if (title == ""):
-            title = original_name
-
-        job = q.enqueue_call(func=add_file_to_database, args=(submitter, title, original_name, description, file_content, file_mime, file_hash,), result_ttl=-1)
-
-        flash("Success!  We are currently processing your document, it will appear on your profile page shortly.  Want to upload another document?")
+                "Duplicate file! This file can already be found at the link: <a href=\"/document/%\
+d\">%s/document/%d</a>"
+                % (file.id, current_app.config['WEBSITE_HOST'], file.id)))
         return redirect(url_for('upload.upload_file'))
 
-def add_file_to_database(submitter, title, original_name, description, file_content, file_mime, file_hash):
-    app = create_app()
-    with app.app_context():
-        # save file to UPLOAD_FOLDER/file_hash
-        save_location = ''.join(
-            [app.config['UPLOAD_FOLDER'], "/", file_hash])
-        with open(save_location, "wb+") as storage:
-            storage.write(file_content)  #actually write the file
+    if title == "":
+        title = original_name
 
-        text = textract.process(save_location, language='eng', extension=get_extension_from_mimetype(file_mime)).decode('utf-8')
+    add_file_to_database(submitter, title, original_name, description,
+                         file_content, file_mime, file_hash)
 
-        new_file = File(
-            title=title,
-            original_name=original_name,
-            description=description,
-            file_path=save_location,
-            file_mime=file_mime,
-            transcript=text,
-            file_hash=file_hash,
-            submitter=submitter)
+    flash(
+        "Success!  We are currently processing your document, it will appear on your profile page \
+shortly.  Want to upload another document?"
+    )
+    return redirect(url_for('upload.upload_file'))
 
-        db.session.add(new_file)  #add to database
-        db.session.commit()
-        return new_file.id
+
+def add_file_to_database(submitter, title, original_name, description,
+                         file_content, file_mime, file_hash):
+    """
+    This:
+    1) Writes a file to the disk ({UPLOAD_FOLDER}/hash),
+    2) Attempts to generate a transcript of the file,
+    3) Saves the file to the database.
+    """
+    # save file to UPLOAD_FOLDER/file_hash
+    save_location = ''.join(
+        [current_app.config['UPLOAD_FOLDER'], "/", file_hash])
+    with open(save_location, "wb+") as storage:
+        storage.write(file_content)  # actually write the file
+
+    try:
+        text = textract.process(
+            save_location,
+            language='eng',
+            extension=get_extension_from_mimetype(file_mime)).decode(
+                'utf-8')
+    except (textract.exceptions.UnknownMethod, textract.exceptions.ShellError):
+        text = ""
+
+    new_file = File(
+        title=title,
+        original_name=original_name,
+        description=description,
+        file_path=save_location,
+        file_mime=file_mime,
+        transcript=text,
+        file_hash=file_hash,
+        submitter=submitter)
+
+    APP_DATABASE.session.add(new_file)  # add to database
+    APP_DATABASE.session.commit()
+    return new_file.id
